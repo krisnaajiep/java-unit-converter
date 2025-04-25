@@ -20,6 +20,7 @@
         </ul>
     </nav>
     <%--  Nav Section End  --%>
+    <% if (request.getParameter("convert") == null) { %>
     <%--  Form Section Start  --%>
     <section class="form">
         <form action="" method="post">
@@ -43,5 +44,16 @@
         </form>
     </section>
     <%--  Form Section End  --%>
+    <% } else { %>
+    <%--  Result Section Start  --%>
+    <section class="result">
+        <h3>Result of your calculation</h3>
+        <h2>205 = 25ft</h2>
+        <form action="" method="post">
+            <button>Reset</button>
+        </form>
+    </section>
+    <%--  Result Section End  --%>
+    <% } %>
 </body>
 </html>
