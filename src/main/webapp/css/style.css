@@ -1,0 +1,72 @@
+header h1,
+nav {
+  text-align: center;
+}
+
+nav li {
+  display: inline;
+  margin: 0 6px;
+}
+
+nav li a {
+  color: blue;
+  text-decoration: none;
+}
+
+nav li a:hover {
+  color: darkblue;
+  text-decoration: underline;
+}
+
+nav ul {
+  padding-left: 0;
+}
+
+section.form,
+section.result {
+  width: 30vw;
+  margin: 30px auto;
+  border: 1px solid black;
+  padding: 20px;
+  border-radius: 5px;
+}
+
+.form-input {
+  font-size: large;
+  margin-bottom: 20px;
+}
+
+.form-input label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.form-input input {
+  height: 25px;
+  width: 98%;
+  font-size: medium;
+}
+
+.form-input select {
+  height: 30px;
+  width: 100%;
+  font-size: medium;
+  background-color: #fff;
+}
+
+.form-input p.error {
+  color: red;
+  font-size: medium;
+  margin-top: 5px;
+}
+
+button {
+  margin-top: 10px;
+  width: 100px;
+  height: 35px;
+  font-size: medium;
+}
+
+section.result h3 {
+  margin-top: 0;
+}
