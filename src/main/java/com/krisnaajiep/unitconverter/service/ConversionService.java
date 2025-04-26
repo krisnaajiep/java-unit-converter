@@ -72,7 +72,8 @@ public class ConversionService {
         var result = new BigDecimal(value)
                 .multiply(BigDecimal.valueOf(fromFactor))
                 .divide(BigDecimal.valueOf(toFactor), SCALE, ROUNDING_MODE)
-                .stripTrailingZeros();
+                .stripTrailingZeros()
+                .toPlainString();
 
         return new ConversionResult(value + fromSymbol, result + toSymbol).toMap();
     }
