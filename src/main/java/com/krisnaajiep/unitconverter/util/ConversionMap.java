@@ -15,14 +15,15 @@ import java.util.Map;
 
 public class ConversionMap {
     private final static Map<String, Map<String, Object>> LENGTH_UNITS = new LinkedHashMap<>();
-    private final static Map<String, Map<String, Object>> WEIGHT_UNITS = new LinkedHashMap<>();\
+    private final static Map<String, Map<String, Object>> WEIGHT_UNITS = new LinkedHashMap<>();
+    private final static Map<String, Map<String, Object>> TEMPERATURE_UNITS = new LinkedHashMap<>();
 
     private static void setLengthUnits() {
         LENGTH_UNITS.put("millimeter", Map.of("factor", 0.000001, "symbol", "mm"));
         LENGTH_UNITS.put("centimeter", Map.of("factor", 0.00001, "symbol", "cm"));
         LENGTH_UNITS.put("meter", Map.of("factor", 0.001, "symbol", "m"));
         LENGTH_UNITS.put("kilometer", Map.of("factor", 1.0, "symbol", "km"));
-        LENGTH_UNITS.put("inch", Map.of("factor", 0.0000254, "symbol", "km"));
+        LENGTH_UNITS.put("inch", Map.of("factor", 0.0000254, "symbol", "in"));
         LENGTH_UNITS.put("foot", Map.of("factor", 0.0003048, "symbol", "ft"));
         LENGTH_UNITS.put("yard", Map.of("factor", 0.0009144, "symbol", "yd"));
         LENGTH_UNITS.put("mile", Map.of("factor", 1.60934, "symbol", "mi"));
@@ -44,5 +45,16 @@ public class ConversionMap {
     public static Map<String, Map<String, Object>> getWeightUnits() {
         setWeightUnits();
         return WEIGHT_UNITS;
+    }
+
+    private static void setTemperatureUnits() {
+        TEMPERATURE_UNITS.put("celsius", Map.of("symbol", "°C"));
+        TEMPERATURE_UNITS.put("fahrenheit", Map.of("symbol", "°F"));
+        TEMPERATURE_UNITS.put("kelvin", Map.of("symbol", "K"));
+    }
+
+    public static Map<String, Map<String, Object>> getTemperatureUnits() {
+        setTemperatureUnits();
+        return TEMPERATURE_UNITS;
     }
 }
