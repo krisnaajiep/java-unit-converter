@@ -10,7 +10,7 @@ Created on 26/04/25 00.44
 Version 1.0
 */
 
-import com.krisnaajiep.unitconverter.util.ConversionMap;
+import com.krisnaajiep.unitconverter.service.ConversionService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -18,21 +18,28 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.util.Map;
 
 @WebServlet(name = "lengthServlet", value = "/length")
 public class LengthServlet extends HttpServlet {
+    private final ConversionService conversionService = new ConversionService();
+
     public void init() {}
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        request.setAttribute("lengthUnits", ConversionMap.getLengthUnits().keySet().toArray());
-        request.getRequestDispatcher("index.jsp").forward(request, response);
+        request.setAttribute("lengthUnits", conversionService.getUnits("length"));
+        request.getRequestDispatcher("/index.jsp").forward(request, response);
     }
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         if (request.getParameter("convert") != null) {
+            String from = request.getParameter("from");
+            String to = request.getParameter("to");
             String value = request.getParameter("value");
-            request.setAttribute("value", value);
-            request.getRequestDispatcher("index.jsp").forward(request, response);
+            Map<String, String> result = conversionService.convertLength(from, to, value);
+
+            request.setAttribute("result", result);
+            request.getRequestDispatcher("/index.jsp").forward(request, response);
         } else {
             response.sendRedirect("");
         }

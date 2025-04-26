@@ -1,4 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -26,25 +27,23 @@
     <form action="" method="post">
         <div class="form-input">
             <label for="value">Enter the length to convert</label>
-            <input type="number" name="value" id="value" value="0" min="0">
-        </div>
-        <div class="form-input">
-            <label for="from">Unit to convert from</label>
-            <select name="from" id="from">
-                <% Object[] lengthUnits = (Object[]) request.getAttribute("lengthUnits");
-                    for (Object lengthUnit : lengthUnits) { %>
-                <option value="<%= lengthUnit %>"><%= lengthUnit %>
-                </option>
-                <% } %>
-            </select>
+            <input type="text" name="value" id="value" required>
         </div>
         <div class="form-input">
             <label for="to">Unit to convert to</label>
-            <select name="to" id="to">
-                <% for (Object lengthUnit : lengthUnits) { %>
-                <option value="<%= lengthUnit %>"><%= lengthUnit %>
-                </option>
-                <% } %>
+            <%--@elvariable id="lengthUnits" type="java.util.List"--%>
+            <select name="to" id="to" required>
+                <c:forEach items="${lengthUnits}" var="lengthUnit">
+                    <option value="${lengthUnit}">${lengthUnit}</option>
+                </c:forEach>
+            </select>
+        </div>
+        <div class="form-input">
+            <label for="from">Unit to convert from</label>
+            <select name="from" id="from" required>
+                <c:forEach items="${lengthUnits}" var="lengthUnit">
+                    <option value="${lengthUnit}">${lengthUnit}</option>
+                </c:forEach>
             </select>
         </div>
         <button type="submit" name="convert">Convert</button>
@@ -55,8 +54,10 @@
 <%--  Result Section Start  --%>
 <section class="result">
     <h3>Result of your calculation</h3>
-    <h2>205 = 25ft</h2>
-    <h2><%= request.getAttribute("value").toString() %></h2>
+    <%--@elvariable id="result" type="java.util.Map"--%>
+    <c:if test="${not empty result}">
+        <h2><c:out value="${result.from}"/> = <c:out value="${result.to}"/></h2>
+    </c:if>
     <form action=""  method="post">
         <button>Reset</button>
     </form>
