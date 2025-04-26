@@ -15,6 +15,7 @@ import java.util.Map;
 
 public class ConversionMap {
     private final static Map<String, Map<String, Object>> LENGTH_UNITS = new LinkedHashMap<>();
+    private final static Map<String, Map<String, Object>> WEIGHT_UNITS = new LinkedHashMap<>();\
 
     private static void setLengthUnits() {
         LENGTH_UNITS.put("millimeter", Map.of("factor", 0.000001, "symbol", "mm"));
@@ -30,5 +31,18 @@ public class ConversionMap {
     public static Map<String, Map<String, Object>> getLengthUnits() {
         setLengthUnits();
         return LENGTH_UNITS;
+    }
+
+    private static void setWeightUnits() {
+        WEIGHT_UNITS.put("milligram", Map.of("factor", 0.000001, "symbol", "mg"));
+        WEIGHT_UNITS.put("gram", Map.of("factor", 0.001, "symbol", "g"));
+        WEIGHT_UNITS.put("kilogram", Map.of("factor", 1.0, "symbol", "kg"));
+        WEIGHT_UNITS.put("ounce", Map.of("factor", 0.0283495, "symbol", "oz"));
+        WEIGHT_UNITS.put("pound", Map.of("factor", 0.453592, "symbol", "lb"));
+    }
+
+    public static Map<String, Map<String, Object>> getWeightUnits() {
+        setWeightUnits();
+        return WEIGHT_UNITS;
     }
 }
