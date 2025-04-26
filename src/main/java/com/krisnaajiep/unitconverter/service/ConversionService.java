@@ -14,13 +14,18 @@ import com.krisnaajiep.unitconverter.util.ConversionMap;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ConversionService {
-    public List<String> getUnits(String unit) {
-        return ConversionMap.getLengthUnits().keySet().stream().toList();
+    public Set<String> getUnits(String unit) {
+        if (unit.equals("length")) {
+            return ConversionMap.getLengthUnits().keySet();
+        } else if (unit.equals("weight")) {
+            return ConversionMap.getWeightUnits().keySet();
+        } else {
+            return Set.of();
+        }
     }
 
     public Map<String, String> convertLength(String from, String to, String value) {
@@ -30,16 +35,27 @@ public class ConversionService {
         String fromSymbol = ConversionMap.getLengthUnits().get(from).get("symbol").toString();
         String toSymbol = ConversionMap.getLengthUnits().get(to).get("symbol").toString();
 
+        return calculateConversion(fromFactor, toFactor, fromSymbol, toSymbol, value);
+    }
+
+    public Map<String, String> convertWeight(String from, String to, String value) {
+        double fromFactor = (double) ConversionMap.getWeightUnits().get(from).get("factor");
+        double toFactor = (double) ConversionMap.getWeightUnits().get(to).get("factor");
+
+        String fromSymbol = ConversionMap.getWeightUnits().get(from).get("symbol").toString();
+        String toSymbol = ConversionMap.getWeightUnits().get(to).get("symbol").toString();
+
+        return calculateConversion(fromFactor, toFactor, fromSymbol, toSymbol, value);
+    }
+
+    private Map<String, String> calculateConversion(
+            double fromFactor, double toFactor, String fromSymbol, String toSymbol, String value) {
         BigDecimal bigDecimalValue = new BigDecimal(value);
 
         BigDecimal result = bigDecimalValue
                 .multiply(BigDecimal.valueOf(fromFactor))
                 .divide(BigDecimal.valueOf(toFactor), 12, RoundingMode.HALF_UP);
 
-        Map<String, String> map = new HashMap<>();
-        map.put("from", value + fromSymbol);
-        map.put("to", result.stripTrailingZeros() + toSymbol);
-
-        return map;
+        return Map.of("from", value + fromSymbol, "to", result.stripTrailingZeros() + toSymbol);
     }
 }
