@@ -18,100 +18,105 @@ import java.util.Map;
 import java.util.Set;
 
 public class ConversionService {
+    private static final int SCALE = 12;
+    private static final RoundingMode ROUNDING_MODE = RoundingMode.HALF_UP;
+    private static final BigDecimal FAHRENHEIT_RATIO = BigDecimal.valueOf(9.0/5.0);
+    private static final BigDecimal FAHRENHEIT_OFFSET = BigDecimal.valueOf(32.0);
+    private static final BigDecimal KELVIN_OFFSET = BigDecimal.valueOf(273.15);
+
     public Set<String> getUnits(String measurement) {
-        return switch (measurement.toLowerCase()) {
-            case "length" -> ConversionMap.getLengthUnits().keySet();
-            case "weight" -> ConversionMap.getWeightUnits().keySet();
-            case "temperature" -> ConversionMap.getTemperatureUnits().keySet();
-            default -> Set.of();
-        };
+        try {
+            return switch (Measurement.from(measurement)) {
+                case LENGTH -> ConversionMap.getLengthUnits().keySet();
+                case WEIGHT -> ConversionMap.getWeightUnits().keySet();
+                case TEMPERATURE -> ConversionMap.getTemperatureUnits().keySet();
+            };
+        } catch (IllegalArgumentException e) {
+            return Set.of();
+        }
     }
 
     public Map<String, String> convert(String measurement, String from, String to, String value) {
-        return switch (measurement.toLowerCase()) {
-            case "length" -> convertLength(from, to, value);
-            case "weight" -> convertWeight(from, to, value);
-            case "temperature" -> convertTemperature(from, to, value);
-            default -> Map.of();
-        };
+        try {
+            return switch (Measurement.from(measurement)) {
+                case LENGTH -> convertLength(from, to, value);
+                case WEIGHT -> convertWeight(from, to, value);
+                case TEMPERATURE -> convertTemperature(from, to, value);
+            };
+        } catch (IllegalArgumentException e) {
+            return Map.of();
+        }
+    }
+
+    private UnitInfo getUnitInfo(Map<String, Map <String, Object>> units, String unit) {
+        return UnitInfo.from(units.get(unit));
     }
 
     private Map<String, String> convertLength(String from, String to, String value) {
-        double fromFactor = (double) ConversionMap.getLengthUnits().get(from).get("factor");
-        double toFactor = (double) ConversionMap.getLengthUnits().get(to).get("factor");
+        var fromUnit = getUnitInfo(ConversionMap.getLengthUnits(), from);
+        var toUnit = getUnitInfo(ConversionMap.getLengthUnits(), to);
 
-        String fromSymbol = ConversionMap.getLengthUnits().get(from).get("symbol").toString();
-        String toSymbol = ConversionMap.getLengthUnits().get(to).get("symbol").toString();
-
-        return calculateConversion(fromFactor, toFactor, fromSymbol, toSymbol, value);
+        return calculateConversion(fromUnit.factor(), toUnit.factor(), fromUnit.symbol(), toUnit.symbol(), value);
     }
 
     private Map<String, String> convertWeight(String from, String to, String value) {
-        double fromFactor = (double) ConversionMap.getWeightUnits().get(from).get("factor");
-        double toFactor = (double) ConversionMap.getWeightUnits().get(to).get("factor");
+        var fromUnit = getUnitInfo(ConversionMap.getWeightUnits(), from);
+        var toUnit = getUnitInfo(ConversionMap.getWeightUnits(), to);
 
-        String fromSymbol = ConversionMap.getWeightUnits().get(from).get("symbol").toString();
-        String toSymbol = ConversionMap.getWeightUnits().get(to).get("symbol").toString();
-
-        return calculateConversion(fromFactor, toFactor, fromSymbol, toSymbol, value);
+        return calculateConversion(fromUnit.factor(), toUnit.factor(), fromUnit.symbol(), toUnit.symbol(), value);
     }
 
     private Map<String, String> calculateConversion(double fromFactor, double toFactor,
                                                     String fromSymbol, String toSymbol,
                                                     String value) {
-        BigDecimal bigDecimalValue = new BigDecimal(value);
-
-        BigDecimal result = bigDecimalValue
+        var result = new BigDecimal(value)
                 .multiply(BigDecimal.valueOf(fromFactor))
-                .divide(BigDecimal.valueOf(toFactor), 12, RoundingMode.HALF_UP);
+                .divide(BigDecimal.valueOf(toFactor), SCALE, ROUNDING_MODE)
+                .stripTrailingZeros();
 
-        return Map.of("from", value + fromSymbol, "to", result.stripTrailingZeros() + toSymbol);
+        return new ConversionResult(value + fromSymbol, result + toSymbol).toMap();
     }
 
     private Map<String, String> convertTemperature(String from, String to, String value) {
-        String fromSymbol = ConversionMap.getTemperatureUnits().get(from).get("symbol").toString();
-        String toSymbol = ConversionMap.getTemperatureUnits().get(to).get("symbol").toString();
+      var fromUnit = getUnitInfo(ConversionMap.getTemperatureUnits(), from);
+      var toUnit = getUnitInfo(ConversionMap.getTemperatureUnits(), to);
+      var input = new BigDecimal(value);
 
-        BigDecimal bigDecimalValue = new BigDecimal(value);
+      var result = switch (from) {
+          case "celsius" -> convertFromCelsius(to, input);
+          case "fahrenheit" -> convertFromFahrenheit(to, input);
+          case "kelvin" -> convertFromKelvin(to, input);
+          default -> input;
+      };
 
-        BigDecimal result;
+      return new ConversionResult(value + fromUnit.symbol(), result + toUnit.symbol()).toMap();
+    }
 
-        switch (from) {
-            case "celsius" -> result = switch (to) {
-                case "fahrenheit" -> bigDecimalValue
-                        .multiply(BigDecimal.valueOf(9.0))
-                        .divide(BigDecimal.valueOf(5.0), 12, RoundingMode.HALF_UP)
-                        .add(BigDecimal.valueOf(32.0));
-                case "kelvin" -> bigDecimalValue
-                        .add(BigDecimal.valueOf(273.15));
-                default -> bigDecimalValue;
-            };
-            case "fahrenheit" -> {
-                final BigDecimal multiply = (bigDecimalValue.subtract(BigDecimal.valueOf(32.0)))
-                        .multiply(BigDecimal.valueOf(5.0));
+    private BigDecimal convertFromCelsius(String to, BigDecimal value) {
+        return switch (to) {
+            case "fahrenheit" -> value.multiply(FAHRENHEIT_RATIO).add(FAHRENHEIT_OFFSET);
+            case "kelvin" -> value.add(KELVIN_OFFSET);
+            default -> value;
+        };
+    }
 
-                result = switch (to) {
-                    case "celsius" -> multiply
-                            .divide(BigDecimal.valueOf(9.0), 12, RoundingMode.HALF_UP);
-                    case "kelvin" -> multiply
-                            .divide(BigDecimal.valueOf(9.0), 12, RoundingMode.HALF_UP)
-                            .add(BigDecimal.valueOf(273.15));
-                    default -> multiply;
-                };
-            }
-            case "kelvin" -> result = switch (to) {
-                case "celsius" -> bigDecimalValue
-                        .subtract(BigDecimal.valueOf(273.15));
-                case "fahrenheit" -> bigDecimalValue
-                        .subtract(BigDecimal.valueOf(273.15))
-                        .multiply(BigDecimal.valueOf(9.0))
-                        .divide(BigDecimal.valueOf(5.0), 12, RoundingMode.HALF_UP)
-                        .add(BigDecimal.valueOf(32.0));
-                default -> bigDecimalValue;
-            };
-            default -> result = bigDecimalValue;
-        }
+    private BigDecimal convertFromFahrenheit(String to, BigDecimal value) {
+        var celsius = value.subtract(FAHRENHEIT_OFFSET).divide(FAHRENHEIT_RATIO, SCALE, ROUNDING_MODE);
 
-        return Map.of("from", value + fromSymbol, "to", result.stripTrailingZeros() + toSymbol);
+        return switch (to) {
+            case "celsius" -> celsius;
+            case "kelvin" -> celsius.add(KELVIN_OFFSET);
+            default -> value;
+        };
+    }
+
+    private BigDecimal convertFromKelvin(String to, BigDecimal value) {
+        var celsius = value.subtract(KELVIN_OFFSET);
+
+        return switch (to) {
+            case "celsius" -> celsius;
+            case "fahrenheit" -> celsius.multiply(FAHRENHEIT_RATIO).add(FAHRENHEIT_OFFSET);
+            default -> value;
+        };
     }
 }

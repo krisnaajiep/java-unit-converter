@@ -11,7 +11,7 @@ Version 1.0
 */
 
 import com.krisnaajiep.unitconverter.service.ConversionService;
-import com.krisnaajiep.unitconverter.util.InputValidator;
+import com.krisnaajiep.unitconverter.util.validator.InputValidator;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
