@@ -19,13 +19,12 @@ import java.util.Set;
 
 public class ConversionService {
     public Set<String> getUnits(String unit) {
-        if (unit.equals("length")) {
-            return ConversionMap.getLengthUnits().keySet();
-        } else if (unit.equals("weight")) {
-            return ConversionMap.getWeightUnits().keySet();
-        } else {
-            return Set.of();
-        }
+        return switch (unit) {
+            case "length" -> ConversionMap.getLengthUnits().keySet();
+            case "weight" -> ConversionMap.getWeightUnits().keySet();
+            case "temperature" -> ConversionMap.getTemperatureUnits().keySet();
+            default -> Set.of();
+        };
     }
 
     public Map<String, String> convertLength(String from, String to, String value) {
@@ -55,6 +54,53 @@ public class ConversionService {
         BigDecimal result = bigDecimalValue
                 .multiply(BigDecimal.valueOf(fromFactor))
                 .divide(BigDecimal.valueOf(toFactor), 12, RoundingMode.HALF_UP);
+
+        return Map.of("from", value + fromSymbol, "to", result.stripTrailingZeros() + toSymbol);
+    }
+
+    public Map<String, String> convertTemperature(String from, String to, String value) {
+        String fromSymbol = ConversionMap.getTemperatureUnits().get(from).get("symbol").toString();
+        String toSymbol = ConversionMap.getTemperatureUnits().get(to).get("symbol").toString();
+
+        BigDecimal bigDecimalValue = new BigDecimal(value);
+
+        BigDecimal result;
+
+        switch (from) {
+            case "celsius" -> result = switch (to) {
+                case "fahrenheit" -> bigDecimalValue
+                        .multiply(BigDecimal.valueOf(9.0))
+                        .divide(BigDecimal.valueOf(5.0), 12, RoundingMode.HALF_UP)
+                        .add(BigDecimal.valueOf(32.0));
+                case "kelvin" -> bigDecimalValue
+                        .add(BigDecimal.valueOf(273.15));
+                default -> bigDecimalValue;
+            };
+            case "fahrenheit" -> {
+                final BigDecimal multiply = (bigDecimalValue.subtract(BigDecimal.valueOf(32.0)))
+                        .multiply(BigDecimal.valueOf(5.0));
+
+                result = switch (to) {
+                    case "celsius" -> multiply
+                            .divide(BigDecimal.valueOf(9.0), 12, RoundingMode.HALF_UP);
+                    case "kelvin" -> multiply
+                            .divide(BigDecimal.valueOf(9.0), 12, RoundingMode.HALF_UP)
+                            .add(BigDecimal.valueOf(273.15));
+                    default -> multiply;
+                };
+            }
+            case "kelvin" -> result = switch (to) {
+                case "celsius" -> bigDecimalValue
+                        .subtract(BigDecimal.valueOf(273.15));
+                case "fahrenheit" -> bigDecimalValue
+                        .subtract(BigDecimal.valueOf(273.15))
+                        .multiply(BigDecimal.valueOf(9.0))
+                        .divide(BigDecimal.valueOf(5.0), 12, RoundingMode.HALF_UP)
+                        .add(BigDecimal.valueOf(32.0));
+                default -> bigDecimalValue;
+            };
+            default -> result = bigDecimalValue;
+        }
 
         return Map.of("from", value + fromSymbol, "to", result.stripTrailingZeros() + toSymbol);
     }
