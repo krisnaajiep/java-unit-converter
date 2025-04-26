@@ -18,8 +18,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class ConversionService {
-    public Set<String> getUnits(String unit) {
-        return switch (unit) {
+    public Set<String> getUnits(String measurement) {
+        return switch (measurement.toLowerCase()) {
             case "length" -> ConversionMap.getLengthUnits().keySet();
             case "weight" -> ConversionMap.getWeightUnits().keySet();
             case "temperature" -> ConversionMap.getTemperatureUnits().keySet();
@@ -27,7 +27,16 @@ public class ConversionService {
         };
     }
 
-    public Map<String, String> convertLength(String from, String to, String value) {
+    public Map<String, String> convert(String measurement, String from, String to, String value) {
+        return switch (measurement.toLowerCase()) {
+            case "length" -> convertLength(from, to, value);
+            case "weight" -> convertWeight(from, to, value);
+            case "temperature" -> convertTemperature(from, to, value);
+            default -> Map.of();
+        };
+    }
+
+    private Map<String, String> convertLength(String from, String to, String value) {
         double fromFactor = (double) ConversionMap.getLengthUnits().get(from).get("factor");
         double toFactor = (double) ConversionMap.getLengthUnits().get(to).get("factor");
 
@@ -37,7 +46,7 @@ public class ConversionService {
         return calculateConversion(fromFactor, toFactor, fromSymbol, toSymbol, value);
     }
 
-    public Map<String, String> convertWeight(String from, String to, String value) {
+    private Map<String, String> convertWeight(String from, String to, String value) {
         double fromFactor = (double) ConversionMap.getWeightUnits().get(from).get("factor");
         double toFactor = (double) ConversionMap.getWeightUnits().get(to).get("factor");
 
@@ -47,8 +56,9 @@ public class ConversionService {
         return calculateConversion(fromFactor, toFactor, fromSymbol, toSymbol, value);
     }
 
-    private Map<String, String> calculateConversion(
-            double fromFactor, double toFactor, String fromSymbol, String toSymbol, String value) {
+    private Map<String, String> calculateConversion(double fromFactor, double toFactor,
+                                                    String fromSymbol, String toSymbol,
+                                                    String value) {
         BigDecimal bigDecimalValue = new BigDecimal(value);
 
         BigDecimal result = bigDecimalValue
@@ -58,7 +68,7 @@ public class ConversionService {
         return Map.of("from", value + fromSymbol, "to", result.stripTrailingZeros() + toSymbol);
     }
 
-    public Map<String, String> convertTemperature(String from, String to, String value) {
+    private Map<String, String> convertTemperature(String from, String to, String value) {
         String fromSymbol = ConversionMap.getTemperatureUnits().get(from).get("symbol").toString();
         String toSymbol = ConversionMap.getTemperatureUnits().get(to).get("symbol").toString();
 
