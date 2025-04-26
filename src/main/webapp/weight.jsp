@@ -1,3 +1,10 @@
+<%--
+  Created by IntelliJ IDEA.
+  User: krisna
+  Date: 26/04/25
+  Time: 09.08
+  To change this template use File | Settings | File Templates.
+--%>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
@@ -26,23 +33,23 @@
 <section class="form">
     <form action="" method="post">
         <div class="form-input">
-            <label for="value">Enter the length to convert</label>
+            <label for="value">Enter the weight to convert</label>
             <input type="text" name="value" id="value" required>
         </div>
         <div class="form-input">
             <label for="from">Unit to convert from</label>
-            <%--@elvariable id="lengthUnits" type="java.util.Set"--%>
+            <%--@elvariable id="weightUnits" type="java.util.List"--%>
             <select name="from" id="from" required>
-                <c:forEach items="${lengthUnits}" var="lengthUnit">
-                    <option value="${lengthUnit}">${lengthUnit}</option>
+                <c:forEach items="${weightUnits}" var="weightUnits">
+                    <option value="${weightUnits}">${weightUnits}</option>
                 </c:forEach>
             </select>
         </div>
         <div class="form-input">
             <label for="to">Unit to convert to</label>
             <select name="to" id="to" required>
-                <c:forEach items="${lengthUnits}" var="lengthUnit">
-                    <option value="${lengthUnit}">${lengthUnit}</option>
+                <c:forEach items="${weightUnits}" var="weightUnits">
+                    <option value="${weightUnits}">${weightUnits}</option>
                 </c:forEach>
             </select>
         </div>
