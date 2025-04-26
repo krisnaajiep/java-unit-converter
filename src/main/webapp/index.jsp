@@ -17,7 +17,7 @@
     <ul>
         <li><a href="length">Length</a></li>
         <li><a href="weight">Weight</a></li>
-        <li><a href="">Temperature</a></li>
+        <li><a href="temperature">Temperature</a></li>
     </ul>
 </nav>
 <%--  Nav Section End  --%>
