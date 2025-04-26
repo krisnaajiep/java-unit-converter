@@ -1,4 +1,4 @@
-package com.krisnaajiep.unitconverter.util;
+package com.krisnaajiep.unitconverter.util.validator;
 
 /*
 IntelliJ IDEA 2025.1 (Ultimate Edition)
@@ -30,10 +30,13 @@ public class InputValidator {
     }
 
     private static void validate(Object input, String rule, String name) {
-        switch (rule) {
-            case "required" -> validateRequired(input, name);
-            case "number" -> validateNumber(input, name);
-            default -> errors.get().put(name, "Invalid rule: " + rule);
+        try {
+            switch (Rule.of(rule)) {
+                case REQUIRED -> validateRequired(input, name);
+                case NUMBER -> validateNumber(input, name);
+            }
+        } catch (IllegalArgumentException e) {
+            errors.get().put(name, e.getMessage());
         }
     }
 
