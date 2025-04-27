@@ -11,6 +11,7 @@
 * [Usage](#usage)
 * [Project Status](#project-status)
 * [Acknowledgements](#acknowledgements)
+* [License](#license)
 
 ## General Information
 
@@ -81,7 +82,7 @@ How to install:
 4. Copy the WAR file from the target/ directory to the webapps folder in your Apache Tomcat directory
 
    ```bash
-   cp target/java-unit-converter-1.0-SNAPSHOT path/to/tomcat/webapps/unit-converter.war 
+   cp target/java-unit-converter-1.0-SNAPSHOT.war path/to/tomcat/webapps/unit-converter.war 
    ```
 
 5. Run the Apache Tomcat and access the URL
@@ -123,3 +124,7 @@ Project is: _complete_.
 ## Acknowledgements
 
 This project was inspired by [roadmap.sh](https://roadmap.sh/projects/unit-converter).
+
+## License
+
+This project is licensed under the MIT License—see the [LICENSE](./LICENSE) file for details.
